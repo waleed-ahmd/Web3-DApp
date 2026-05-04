@@ -83,6 +83,26 @@ async function readFileAsText(file) {
   return await file.text();
 }
 
+async function readKeystoreFileOrShowError() {
+  const fileText = await readFileAsText(returnKeystoreFile.files[0]);
+
+  try {
+    JSON.parse(fileText);
+  } catch {
+    setFieldError("returnKeystoreFileError", "The selected keystore file is not valid JSON.");
+    AppUtils.setStatus("returnStatus", "Please choose a valid encrypted JSON keystore file.", STATUS.ERROR);
+    return null;
+  }
+
+  return fileText;
+}
+
+function resetReturnProgress() {
+  returnProgressWrap.style.display = "none";
+  returnProgressBar.value = 0;
+  returnProgressText.textContent = "Decrypting wallet...";
+}
+
 async function refreshReturnSnapshot(address) {
   const [ethBalance, tokenBalance, tokenSymbol, decimals, venue] = await Promise.all([
     ContractService.getEthBalance(address),
@@ -100,17 +120,23 @@ async function refreshReturnSnapshot(address) {
 
 async function previewReturn() {
   if (previewReturnBtn.disabled) return;
+  previewReturnBtn.disabled = true;
 
   if (!validateReturnForm()) {
     AppUtils.setStatus("returnStatus", "Please fix the validation errors before previewing the return.", STATUS.ERROR);
+    previewReturnBtn.disabled = false;
     return;
   }
 
-  previewReturnBtn.disabled = true;
   AppUtils.setStatus("returnStatus", "Loading wallet state and refund preview...", STATUS.INFO);
 
   try {
-    const fileText = await readFileAsText(returnKeystoreFile.files[0]);
+    const fileText = await readKeystoreFileOrShowError();
+    if (!fileText) {
+      resetReturnProgress();
+      return;
+    }
+
     const password = returnWalletPassword.value;
     const quantity = Number(returnQuantity.value);
 
@@ -135,6 +161,7 @@ async function previewReturn() {
     );
   } catch (error) {
     console.error(error);
+    resetReturnProgress();
     AppUtils.setStatus("returnStatus", `Failed to preview return: ${error.message || "Unknown error."}`, STATUS.ERROR);
   } finally {
     previewReturnBtn.disabled = false;
@@ -145,21 +172,28 @@ async function previewReturn() {
 async function handleReturnSubmit(event) {
   event.preventDefault();
   if (returnTicketsBtn.disabled) return;
+  returnTicketsBtn.disabled = true;
+  previewReturnBtn.disabled = true;
 
   if (!validateReturnForm()) {
     AppUtils.setStatus("returnStatus", "Please fix the validation errors before returning tickets.", STATUS.ERROR);
+    returnTicketsBtn.disabled = false;
+    previewReturnBtn.disabled = false;
     return;
   }
 
-  returnTicketsBtn.disabled = true;
-  previewReturnBtn.disabled = true;
   returnProgressWrap.style.display = "block";
   returnProgressBar.value = 0;
   returnProgressText.textContent = "Preparing return transaction...";
   AppUtils.setStatus("returnStatus", "Decrypting wallet and sending return transaction...", STATUS.INFO);
 
   try {
-    const fileText = await readFileAsText(returnKeystoreFile.files[0]);
+    const fileText = await readKeystoreFileOrShowError();
+    if (!fileText) {
+      resetReturnProgress();
+      return;
+    }
+
     const password = returnWalletPassword.value;
     const quantity = Number(returnQuantity.value);
 
@@ -187,6 +221,7 @@ async function handleReturnSubmit(event) {
     returnWalletPassword.value = "";
   } catch (error) {
     console.error(error);
+    resetReturnProgress();
     AppUtils.setStatus("returnStatus", `Ticket return failed: ${error.message || "Unknown error."}`, STATUS.ERROR);
   } finally {
     returnTicketsBtn.disabled = false;
