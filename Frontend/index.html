@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blockchain Ticketing DApp</title>
+  <link rel="stylesheet" href="shared/ticket-page.css" />
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="pill">Blockchain Ticketing DApp</div>
+      <h1>Event ticketing on Sepolia</h1>
+      <p>
+        Create encrypted wallets, check ticket balances, buy ERC-20 ticket tokens,
+        and return tickets to the vendor for a refund.
+      </p>
+    </section>
+
+    <div class="network-banner">
+      <strong>Contract:</strong> <span id="contractAddressBanner">-</span>
+      <span class="divider">|</span>
+      <strong>Network:</strong> Sepolia
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Wallet Manager</h2>
+        <p class="sub">Create an encrypted JSON wallet, download it, or load an existing wallet.</p>
+        <div class="btn-row">
+          <a class="button primary" href="Wallet/wallet.html">Open Wallet Page</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Balance Check</h2>
+        <p class="sub">Use attendee, doorman, and venue views to inspect ETH and ticket balances.</p>
+        <div class="btn-row">
+          <a class="button primary" href="CheckBalance/balance.html">Open Balance Page</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Buy Ticket</h2>
+        <p class="sub">Upload a buyer keystore, preview cost and gas, then purchase ticket tokens.</p>
+        <div class="btn-row">
+          <a class="button primary" href="BuyTicket/buy.html">Open Buy Page</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Return Ticket</h2>
+        <p class="sub">Return ticket tokens to the vendor and receive the contract refund.</p>
+        <div class="btn-row">
+          <a class="button primary" href="ReturnTicket/return.html">Open Return Page</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="shared/app-config.js"></script>
+  <script>
+    document.getElementById("contractAddressBanner").textContent = window.APP_CONFIG?.CONTRACT_ADDRESS || "-";
+  </script>
+</body>
+</html>

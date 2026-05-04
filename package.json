@@ -1,0 +1,12 @@
+{
+  "name": "web3-ticketing-dapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sepolia ERC-20 ticketing DApp built with Solidity, HTML, CSS, and JavaScript.",
+  "scripts": {
+    "check:js": "find Frontend -name '*.js' -print0 | xargs -0 -n 1 node --check"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1"
+  }
+}

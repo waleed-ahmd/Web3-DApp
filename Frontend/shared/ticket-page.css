@@ -103,7 +103,7 @@ label {
   font-weight: 600;
 }
 
-input, button {
+input, button, .button {
   width: 100%;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -140,23 +140,25 @@ input:focus {
   margin-bottom: 12px;
 }
 
-button {
+button, .button {
   cursor: pointer;
   font-weight: 700;
   transition: 0.2s ease;
+  text-align: center;
+  text-decoration: none;
 }
 
-button.primary {
+button.primary, .button.primary {
   background: linear-gradient(135deg, #0284c7, #38bdf8);
   color: white;
   border: none;
 }
 
-button.secondary {
+button.secondary, .button.secondary {
   background: #111827;
 }
 
-button:hover:not(:disabled) {
+button:hover:not(:disabled), .button:hover {
   transform: translateY(-1px);
   filter: brightness(1.04);
 }

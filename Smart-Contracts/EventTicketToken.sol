@@ -99,10 +99,14 @@ contract EventTicketToken is ERC20, Ownable, ReentrancyGuard {
     // ---------------------------
 
     function buyTicket() external payable {
-        buyTickets(1);
+        _buyTickets(1);
     }
 
-    function buyTickets(uint256 quantity) public payable {
+    function buyTickets(uint256 quantity) external payable {
+        _buyTickets(quantity);
+    }
+
+    function _buyTickets(uint256 quantity) internal {
         if (quantity == 0) {
             revert InvalidQuantity();
         }
@@ -132,10 +136,14 @@ contract EventTicketToken is ERC20, Ownable, ReentrancyGuard {
     // ---------------------------
 
     function returnTicket() external nonReentrant {
-        returnTickets(1);
+        _returnTickets(1);
     }
 
-    function returnTickets(uint256 quantity) public nonReentrant {
+    function returnTickets(uint256 quantity) external nonReentrant {
+        _returnTickets(quantity);
+    }
+
+    function _returnTickets(uint256 quantity) internal {
         if (quantity == 0) {
             revert InvalidQuantity();
         }
