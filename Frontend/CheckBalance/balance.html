@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blockchain Ticketing DApp - Balance Check</title>
+  <link rel="stylesheet" href="balance.css" />
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="pill">Balance Check Page</div>
+      <h1>Attendee, Doorman, and Venue views</h1>
+      <p>
+        This page reads Sepolia blockchain data from your deployed ticket contract and displays
+        wallet ETH balances, ticket token balances, ticket verification, and venue-level overview data.
+      </p>
+    </section>
+
+    <div class="network-banner">
+      <strong>Contract:</strong> <span id="contractAddressBanner">-</span>
+      <span class="divider">|</span>
+      <strong>Network:</strong> Sepolia
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Attendee View</h2>
+        <p class="sub">
+          Use this view to confirm whether a wallet holds a ticket and to inspect its ETH and token balance.
+        </p>
+
+        <div class="field">
+          <label for="attendeeAddress">Wallet Address</label>
+          <input id="attendeeAddress" type="text" placeholder="0x..." autocomplete="off" />
+          <div class="helper">Enter the attendee wallet address exactly as it appears in the generated wallet.</div>
+        </div>
+
+        <div class="btn-row">
+          <button id="checkAttendeeBtn" class="primary">Check Attendee Balances</button>
+        </div>
+
+        <div class="status info" id="attendeeStatus"></div>
+
+        <div class="result-list">
+          <div class="result-item">
+            <div class="result-label">ETH Balance</div>
+            <div class="result-value" id="attendeeEthBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Ticket Token Balance</div>
+            <div class="result-value" id="attendeeTokenBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Ticket Status</div>
+            <div class="result-value" id="attendeeTicketStatus">-</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Doorman View</h2>
+        <p class="sub">
+          Use this view to verify whether a wallet currently holds at least one valid ticket token.
+        </p>
+
+        <div class="field">
+          <label for="doormanAddress">Customer Wallet Address</label>
+          <input id="doormanAddress" type="text" placeholder="0x..." autocomplete="off" />
+          <div class="helper">This is a quick verification mode for entry checking.</div>
+        </div>
+
+        <div class="btn-row">
+          <button id="verifyDoormanBtn" class="primary">Verify Ticket Holder</button>
+        </div>
+
+        <div class="status info" id="doormanStatus"></div>
+
+        <div class="result-list">
+          <div class="result-item">
+            <div class="result-label">Verification Result</div>
+            <div class="result-value" id="doormanVerificationResult">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Token Balance</div>
+            <div class="result-value" id="doormanTokenBalance">-</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card-full">
+        <h2>Venue View</h2>
+        <p class="sub">
+          Use this view to inspect the deployed contract state, ticket inventory, outstanding refunds,
+          and overall distribution of tickets.
+        </p>
+
+        <div class="btn-row">
+          <button id="loadVenueBtn" class="primary">Load Venue Overview</button>
+        </div>
+
+        <div class="status info" id="venueStatus"></div>
+
+        <div class="venue-grid">
+          <div class="result-item">
+            <div class="result-label">Owner Address</div>
+            <div class="result-value wrap" id="venueOwner">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Vendor Address</div>
+            <div class="result-value wrap" id="venueVendor">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Vendor ETH Balance</div>
+            <div class="result-value" id="venueVendorEthBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Ticket Price</div>
+            <div class="result-value" id="venueTicketPrice">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Token Symbol</div>
+            <div class="result-value" id="venueTokenSymbol">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Total Supply</div>
+            <div class="result-value" id="venueTotalSupply">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Remaining Inventory</div>
+            <div class="result-value" id="venueRemainingInventory">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Tickets Sold</div>
+            <div class="result-value" id="venueTicketsSold">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Tickets Returned</div>
+            <div class="result-value" id="venueTicketsReturned">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Tickets Outstanding</div>
+            <div class="result-value" id="venueTicketsOutstanding">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Refund Liability</div>
+            <div class="result-value" id="venueRefundLiability">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">ETH Held By Contract</div>
+            <div class="result-value" id="venueTotalRevenueHeld">-</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.umd.min.js"></script>
+  <script src="../shared/app-config.js"></script>
+  <script src="../shared/app-utils.js"></script>
+  <script src="../shared/ticket-contract-service.js"></script>
+  <script src="balance.js"></script>
+</body>
+</html>
