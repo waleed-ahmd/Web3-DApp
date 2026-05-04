@@ -1,11 +1,28 @@
 window.AppUtils = (() => {
+  const STATUS_TYPES = {
+    ERROR: "error",
+    SUCCESS: "success",
+    INFO: "info"
+  };
+
   function isNonEmptyString(value) {
     return typeof value === "string" && value.trim().length > 0;
   }
 
   function validateEthereumAddress(address) {
     if (!window.ethers) return false;
-    return ethers.isAddress(address);
+    const trimmed = address.trim();
+
+    if (!ethers.isAddress(trimmed)) return false;
+
+    const isMixedCase = trimmed !== trimmed.toLowerCase() && trimmed !== trimmed.toUpperCase();
+    if (!isMixedCase) return true;
+
+    try {
+      return ethers.getAddress(trimmed) === trimmed;
+    } catch {
+      return false;
+    }
   }
 
   function formatEth(valueWei) {
@@ -42,11 +59,12 @@ window.AppUtils = (() => {
     if (el) el.innerHTML = value;
   }
 
-  function setStatus(elementId, message, type = "info") {
+  function setStatus(elementId, message, type = STATUS_TYPES.INFO) {
     const el = document.getElementById(elementId);
     if (!el) return;
+    const validType = Object.values(STATUS_TYPES).includes(type) ? type : STATUS_TYPES.INFO;
     el.textContent = message;
-    el.className = `status ${type}`;
+    el.className = `status ${validType}`;
     el.style.display = "block";
   }
 
@@ -59,6 +77,7 @@ window.AppUtils = (() => {
   }
 
   return {
+    STATUS_TYPES,
     isNonEmptyString,
     validateEthereumAddress,
     formatEth,

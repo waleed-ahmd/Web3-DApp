@@ -1,12 +1,24 @@
 
+const CONTRACTS = {
+  sepolia: {
+    eventTicketToken: "0x6327F2211AcEE5f77B5E6Fde511F6750B45bE7BF"
+  }
+};
+
+const ACTIVE_NETWORK = "sepolia";
+const ACTIVE_CONTRACT = "eventTicketToken";
+
 window.APP_CONFIG = {
   NETWORK: {
-    name: "sepolia",
+    name: ACTIVE_NETWORK,
     chainId: 11155111
   },
 
-  CONTRACT_ADDRESS: "0x6327F2211AcEE5f77B5E6Fde511F6750B45bE7BF",
+  ACTIVE_CONTRACT,
+  CONTRACTS,
+  CONTRACT_ADDRESS: CONTRACTS[ACTIVE_NETWORK][ACTIVE_CONTRACT],
   RPC_URL: "https://eth-sepolia.g.alchemy.com/v2/ZCOv9sJwXMo4FXMUVPvgK",
+  RPC_TIMEOUT_MS: 10000,
   EXPLORER_BASE_URL: "https://sepolia.etherscan.io",
 
   CONTRACT_ABI: [

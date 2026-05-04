@@ -1,5 +1,7 @@
 window.ContractService = (() => {
   const config = window.APP_CONFIG;
+  const DEFAULT_BUY_GAS_LIMIT = 120000n;
+  const DEFAULT_RETURN_GAS_LIMIT = 120000n;
 
   function validateQuantity(quantity) {
     const value = Number(quantity);
@@ -101,6 +103,37 @@ window.ContractService = (() => {
     return new Error(getErrorMessage(error));
   }
 
+  function withTimeout(promise, label = "RPC call") {
+    const timeoutMs = Number(config?.RPC_TIMEOUT_MS || 10000);
+    let timeoutId;
+
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = window.setTimeout(() => {
+        reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)} seconds.`));
+      }, timeoutMs);
+    });
+
+    return Promise.race([
+      promise,
+      timeoutPromise
+    ]).finally(() => window.clearTimeout(timeoutId));
+  }
+
+  function shouldUseGasFallback(error) {
+    if (getDecodedContractError(error)) {
+      return false;
+    }
+
+    const rawMessage = [
+      error?.shortMessage,
+      error?.reason,
+      error?.message,
+      error?.info?.error?.message
+    ].find(Boolean) || "";
+
+    return /timeout|network|failed to fetch|server response|could not coalesce|rate limit/i.test(rawMessage);
+  }
+
   function validateConfig() {
     if (!window.ethers) {
       throw new Error("ethers.js is not loaded.");
@@ -129,7 +162,7 @@ window.ContractService = (() => {
   }
 
   async function ensureSepolia(provider) {
-    const network = await provider.getNetwork();
+    const network = await withTimeout(provider.getNetwork(), "Network check");
     const actualChainId = Number(network.chainId);
 
     if (actualChainId !== config.NETWORK.chainId) {
@@ -141,7 +174,7 @@ window.ContractService = (() => {
 
   async function getReadContract() {
     const provider = getProvider();
-    await ensureSepolia(provider);
+    await withTimeout(ensureSepolia(provider), "Sepolia network check");
 
     const contract = new ethers.Contract(
       config.CONTRACT_ADDRESS,
@@ -168,7 +201,7 @@ window.ContractService = (() => {
     }
 
     const provider = getProvider();
-    await ensureSepolia(provider);
+    await withTimeout(ensureSepolia(provider), "Sepolia network check");
 
     let wallet;
     try {
@@ -198,7 +231,7 @@ window.ContractService = (() => {
 
   async function getEthBalance(address) {
     const { provider } = await getReadContract();
-    return await provider.getBalance(address);
+    return await withTimeout(provider.getBalance(address), "ETH balance lookup");
   }
 
   async function getTokenBalance(address) {
@@ -304,7 +337,12 @@ window.ContractService = (() => {
         : await contract.buyTickets.estimateGas(qty, { value: totalCost });
       estimatedGasCost = await estimateGasCost(signer.provider, gasEstimate);
     } catch (error) {
-      throw normalizeError(error);
+      if (!shouldUseGasFallback(error)) {
+        throw normalizeError(error);
+      }
+
+      console.warn("Gas estimation failed, using fallback estimate:", error);
+      estimatedGasCost = await estimateGasCost(signer.provider, DEFAULT_BUY_GAS_LIMIT);
     }
 
     const minimumNeeded = totalCost + estimatedGasCost;
@@ -345,7 +383,12 @@ window.ContractService = (() => {
         : await contract.returnTickets.estimateGas(qty);
       estimatedGasCost = await estimateGasCost(signer.provider, gasEstimate);
     } catch (error) {
-      throw normalizeError(error);
+      if (!shouldUseGasFallback(error)) {
+        throw normalizeError(error);
+      }
+
+      console.warn("Gas estimation failed, using fallback estimate:", error);
+      estimatedGasCost = await estimateGasCost(signer.provider, DEFAULT_RETURN_GAS_LIMIT);
     }
 
     const ethBalance = await signer.provider.getBalance(signer.address);
