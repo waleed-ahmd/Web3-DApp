@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blockchain Ticketing DApp - Wallet Manager</title>
+  <link rel="stylesheet" href="wallet.css" />
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="pill">Wallet Management</div>
+      <h1>Create or load an Ethereum wallet</h1>
+      <p>
+        This page lets users generate a new wallet and download an encrypted JSON keystore,
+        or load an existing encrypted JSON keystore back into the app using its password.
+      </p>
+    </section>
+
+    <div class="grid grid-top">
+      <!-- CREATE WALLET -->
+      <section class="card">
+        <h2>Create Wallet</h2>
+        <p class="sub">
+          Generate a new Ethereum wallet in the browser and protect it using an encrypted JSON keystore file.
+        </p>
+
+        <form id="walletForm" novalidate>
+          <div class="row">
+            <div class="field">
+              <label for="walletRole">Wallet Role</label>
+              <select id="walletRole" name="walletRole" required aria-describedby="walletRoleError">
+                <option value="">Select a role</option>
+                <option value="owner">Owner</option>
+                <option value="vendor">Vendor</option>
+                <option value="buyer">Buyer</option>
+                <option value="doorman">Doorman</option>
+                <option value="custom">Custom</option>
+              </select>
+              <div class="error-text" id="walletRoleError"></div>
+            </div>
+
+            <div class="field">
+              <label for="walletLabel">Wallet Label</label>
+              <input
+                id="walletLabel"
+                name="walletLabel"
+                type="text"
+                maxlength="30"
+                placeholder="e.g. Event Vendor 1"
+                autocomplete="off"
+                aria-describedby="walletLabelHelp walletLabelError"
+              />
+              <div class="helper" id="walletLabelHelp">
+                2–30 characters. Letters, numbers, spaces, dash and underscore only.
+              </div>
+              <div class="error-text" id="walletLabelError"></div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="password">Keystore Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Enter a strong password"
+                autocomplete="new-password"
+                aria-describedby="passwordStrength passwordHelp passwordError"
+              />
+              <div class="password-strength" id="passwordStrength">
+                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                <div class="strength-text" id="strengthText">Weak</div>
+              </div>
+              <div class="helper" id="passwordHelp">
+                At least 12 characters, including upper, lower, number, and special character.
+              </div>
+              <div class="error-text" id="passwordError"></div>
+            </div>
+
+            <div class="field">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Re-enter password"
+                autocomplete="new-password"
+                aria-describedby="confirmPasswordError"
+              />
+              <div class="error-text" id="confirmPasswordError"></div>
+            </div>
+          </div>
+
+          <div class="checkbox-wrap">
+            <input type="checkbox" id="acknowledgeRisk" aria-describedby="acknowledgeRiskError" />
+            <label for="acknowledgeRisk" class="checkbox-label">
+              I understand that if I lose both the encrypted JSON file and its password,
+              I may lose access to this wallet.
+            </label>
+          </div>
+          <div class="error-text" id="acknowledgeRiskError"></div>
+
+          <div class="btn-row">
+            <button type="submit" class="primary" id="generateBtn">Generate Wallet</button>
+            <button type="button" class="secondary" id="resetBtn">Reset Form</button>
+          </div>
+
+          <div class="progress-wrap" id="progressWrap">
+            <div class="helper" id="progressText">Encrypting wallet...</div>
+            <progress id="encryptProgress" value="0" max="100" aria-describedby="progressText"></progress>
+          </div>
+
+          <div class="status info" id="formStatus" role="status" aria-live="polite" tabindex="-1"></div>
+        </form>
+      </section>
+
+      <!-- LOAD WALLET -->
+      <section class="card">
+        <h2>Load Existing Wallet</h2>
+        <p class="sub">
+          Upload an encrypted JSON keystore file and enter its password to reopen the wallet for later use.
+        </p>
+
+        <form id="loadWalletForm" novalidate>
+          <div class="field">
+            <label for="keystoreFile">Encrypted JSON File</label>
+            <input
+              id="keystoreFile"
+              name="keystoreFile"
+              type="file"
+              accept=".json,application/json"
+              aria-describedby="keystoreFileHelp keystoreFileError"
+            />
+            <div class="helper" id="keystoreFileHelp">
+              Upload the keystore JSON file previously downloaded from this page or another Ethereum wallet tool.
+            </div>
+            <div class="error-text" id="keystoreFileError"></div>
+          </div>
+
+          <div class="field">
+            <label for="loadPassword">Keystore Password</label>
+            <input
+              id="loadPassword"
+              name="loadPassword"
+              type="password"
+              placeholder="Enter wallet password"
+              autocomplete="current-password"
+              aria-describedby="loadPasswordError"
+            />
+            <div class="error-text" id="loadPasswordError"></div>
+          </div>
+
+          <div class="btn-row">
+            <button type="submit" class="primary" id="loadWalletBtn">Load Wallet</button>
+            <button type="button" class="secondary" id="resetLoadBtn">Reset Load Form</button>
+          </div>
+
+          <div class="progress-wrap" id="loadProgressWrap">
+            <div class="helper" id="loadProgressText">Decrypting wallet...</div>
+            <progress id="loadProgressBar" value="0" max="100" aria-describedby="loadProgressText"></progress>
+          </div>
+
+          <div class="status info" id="loadStatus" role="status" aria-live="polite" tabindex="-1"></div>
+        </form>
+      </section>
+    </div>
+
+    <div class="grid grid-bottom">
+      <!-- GENERATED OUTPUT -->
+      <section class="card">
+        <h2>Created Wallet Output</h2>
+        <p class="sub">
+          Public wallet details are shown below. Sensitive details are hidden by default.
+        </p>
+
+        <div id="outputPlaceholder" class="warning-box">
+          No wallet has been generated yet.
+        </div>
+
+        <div id="walletOutput" class="hidden">
+          <div class="meta-list">
+            <div class="meta-item">
+              <div class="meta-label">Role</div>
+              <div class="meta-value" id="outRole">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Label</div>
+              <div class="meta-value" id="outLabel">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Wallet Address</div>
+              <div class="meta-value" id="outAddress">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Public Key</div>
+              <div class="meta-value" id="outPublicKey">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Created At</div>
+              <div class="meta-value" id="outCreatedAt">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Download File Name</div>
+              <div class="meta-value" id="outFileName">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Encrypted JSON Preview</div>
+              <textarea id="outJsonPreview" readonly aria-label="Encrypted JSON keystore preview"></textarea>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Sensitive Details</div>
+              <div class="warning-box sensitive-warning">
+                These are hidden on purpose. Reveal them only if you really need them for your assignment or testing.
+              </div>
+              <div class="sensitive-btn-wrap">
+                <button type="button" class="ghost" id="toggleSensitiveBtn" aria-expanded="false">Reveal Sensitive Details</button>
+              </div>
+              <div class="meta-value sensitive" id="outPrivateKey">Private Key: -</div>
+              <div class="meta-value sensitive sensitive-spacing" id="outMnemonic">Mnemonic: -</div>
+            </div>
+          </div>
+
+          <div class="btn-row top-gap">
+            <button type="button" class="primary" id="downloadBtn" disabled>Download Encrypted JSON</button>
+            <button type="button" class="secondary" id="copyAddressBtn">Copy Address</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOADED OUTPUT -->
+      <section class="card">
+        <h2>Loaded Wallet Output</h2>
+        <p class="sub">
+          This section shows the wallet recovered from the uploaded encrypted JSON file.
+        </p>
+
+        <div id="loadedOutputPlaceholder" class="warning-box">
+          No wallet has been loaded yet.
+        </div>
+
+        <div id="loadedWalletOutput" class="hidden">
+          <div class="meta-list">
+            <div class="meta-item">
+              <div class="meta-label">Wallet Address</div>
+              <div class="meta-value" id="loadedAddress">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Public Key</div>
+              <div class="meta-value" id="loadedPublicKey">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Keystore File Name</div>
+              <div class="meta-value" id="loadedFileName">-</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Mnemonic</div>
+              <div class="meta-value sensitive" id="loadedMnemonic">Mnemonic: -</div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-label">Private Key</div>
+              <div class="meta-value sensitive" id="loadedPrivateKey">Private Key: -</div>
+            </div>
+          </div>
+
+          <div class="btn-row top-gap">
+            <button type="button" class="ghost" id="toggleLoadedSensitiveBtn" aria-expanded="false">Reveal Loaded Sensitive Details</button>
+            <button type="button" class="secondary" id="copyLoadedAddressBtn">Copy Loaded Address</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
+  <script src="wallet.js"></script>
+</body>
+</html>
