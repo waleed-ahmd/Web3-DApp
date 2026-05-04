@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buy Ticket - Blockchain Ticketing DApp</title>
+  <link rel="stylesheet" href="buy.css" />
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="pill">Buy Ticket Page</div>
+      <h1>Buy tickets using an encrypted wallet</h1>
+      <p>
+        Upload your encrypted JSON wallet, unlock it with your password, choose the ticket quantity,
+        and send the purchase transaction on Sepolia.
+      </p>
+    </section>
+
+    <div class="network-banner">
+      <strong>Contract:</strong> <span id="contractAddressBanner">-</span>
+      <span class="divider">|</span>
+      <strong>Network:</strong> Sepolia
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Buyer Wallet</h2>
+        <p class="sub">
+          This wallet must contain enough Sepolia ETH to cover both the ticket cost and gas fees.
+        </p>
+
+        <form id="buyForm" novalidate>
+          <div class="field">
+            <label for="buyerKeystoreFile">Encrypted JSON File</label>
+            <input id="buyerKeystoreFile" type="file" accept=".json,application/json" />
+            <div class="helper">Upload the buyer wallet keystore JSON.</div>
+            <div class="error-text" id="buyerKeystoreFileError"></div>
+          </div>
+
+          <div class="field">
+            <label for="buyerWalletPassword">Wallet Password</label>
+            <input id="buyerWalletPassword" type="password" placeholder="Enter wallet password" autocomplete="current-password" />
+            <div class="error-text" id="buyerWalletPasswordError"></div>
+          </div>
+
+          <div class="field">
+            <label for="ticketQuantity">Ticket Quantity</label>
+            <input id="ticketQuantity" type="number" min="1" step="1" value="1" />
+            <div class="helper">Use whole numbers only.</div>
+            <div class="error-text" id="ticketQuantityError"></div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="secondary" id="previewCostBtn">Preview Cost</button>
+            <button type="submit" class="primary" id="buyTicketsBtn">Buy Tickets</button>
+          </div>
+
+          <div class="progress-wrap" id="buyProgressWrap">
+            <div class="helper" id="buyProgressText">Decrypting wallet...</div>
+            <progress id="buyProgressBar" value="0" max="100"></progress>
+          </div>
+
+          <div class="status info" id="buyStatus"></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Purchase Overview</h2>
+        <div class="result-list">
+          <div class="result-item">
+            <div class="result-label">Buyer Address</div>
+            <div class="result-value wrap" id="buyerAddress">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Buyer ETH Balance</div>
+            <div class="result-value" id="buyerEthBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Buyer Token Balance</div>
+            <div class="result-value" id="buyerTokenBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Ticket Price Per Unit</div>
+            <div class="result-value" id="ticketUnitPrice">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Previewed Total Cost</div>
+            <div class="result-value" id="ticketTotalCost">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Latest Transaction</div>
+            <div class="result-value wrap" id="buyTxLink">-</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.umd.min.js"></script>
+  <script src="../shared/app-config.js"></script>
+  <script src="../shared/app-utils.js"></script>
+  <script src="../shared/ticket-contract-service.js"></script>
+  <script src="buy.js"></script>
+</body>
+</html>

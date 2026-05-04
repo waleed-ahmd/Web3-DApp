@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Return Ticket - Blockchain Ticketing DApp</title>
+  <link rel="stylesheet" href="return.css" />
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="pill">Return Ticket Page</div>
+      <h1>Return tickets and receive a refund</h1>
+      <p>
+        Upload the buyer wallet keystore, unlock it, and send the ticket return transaction.
+        The contract will return the ticket to the vendor and refund ETH according to your contract logic.
+      </p>
+    </section>
+
+    <div class="network-banner">
+      <strong>Contract:</strong> <span id="contractAddressBanner">-</span>
+      <span class="divider">|</span>
+      <strong>Network:</strong> Sepolia
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Return Wallet</h2>
+        <p class="sub">
+          Use the wallet that currently holds the ticket tokens you want to return.
+        </p>
+
+        <form id="returnForm" novalidate>
+          <div class="field">
+            <label for="returnKeystoreFile">Encrypted JSON File</label>
+            <input id="returnKeystoreFile" type="file" accept=".json,application/json" />
+            <div class="helper">Upload the buyer wallet keystore JSON.</div>
+            <div class="error-text" id="returnKeystoreFileError"></div>
+          </div>
+
+          <div class="field">
+            <label for="returnWalletPassword">Wallet Password</label>
+            <input id="returnWalletPassword" type="password" placeholder="Enter wallet password" autocomplete="current-password" />
+            <div class="error-text" id="returnWalletPasswordError"></div>
+          </div>
+
+          <div class="field">
+            <label for="returnQuantity">Ticket Quantity To Return</label>
+            <input id="returnQuantity" type="number" min="1" step="1" value="1" />
+            <div class="helper">Use whole numbers only.</div>
+            <div class="error-text" id="returnQuantityError"></div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="secondary" id="previewReturnBtn">Preview Wallet State</button>
+            <button type="submit" class="primary" id="returnTicketsBtn">Return Tickets</button>
+          </div>
+
+          <div class="progress-wrap" id="returnProgressWrap">
+            <div class="helper" id="returnProgressText">Decrypting wallet...</div>
+            <progress id="returnProgressBar" value="0" max="100"></progress>
+          </div>
+
+          <div class="status info" id="returnStatus"></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Return Overview</h2>
+        <div class="result-list">
+          <div class="result-item">
+            <div class="result-label">Wallet Address</div>
+            <div class="result-value wrap" id="returnWalletAddress">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Wallet ETH Balance</div>
+            <div class="result-value" id="returnWalletEthBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Wallet Token Balance</div>
+            <div class="result-value" id="returnWalletTokenBalance">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Expected Refund Per Ticket</div>
+            <div class="result-value" id="returnUnitRefund">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Expected Total Refund</div>
+            <div class="result-value" id="returnTotalRefund">-</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Latest Transaction</div>
+            <div class="result-value wrap" id="returnTxLink">-</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.umd.min.js"></script>
+  <script src="../shared/app-config.js"></script>
+  <script src="../shared/app-utils.js"></script>
+  <script src="../shared/ticket-contract-service.js"></script>
+  <script src="return.js"></script>
+</body>
+</html>
