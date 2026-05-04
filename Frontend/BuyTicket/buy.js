@@ -9,6 +9,7 @@ const buyProgressWrap = document.getElementById("buyProgressWrap");
 const buyProgressBar = document.getElementById("buyProgressBar");
 const buyProgressText = document.getElementById("buyProgressText");
 const contractAddressBanner = document.getElementById("contractAddressBanner");
+const STATUS = AppUtils.STATUS_TYPES;
 
 const errorIds = [
   "buyerKeystoreFileError",
@@ -82,6 +83,26 @@ async function readFileAsText(file) {
   return await file.text();
 }
 
+async function readKeystoreFileOrShowError() {
+  const fileText = await readFileAsText(buyerKeystoreFile.files[0]);
+
+  try {
+    JSON.parse(fileText);
+  } catch {
+    setFieldError("buyerKeystoreFileError", "The selected keystore file is not valid JSON.");
+    AppUtils.setStatus("buyStatus", "Please choose a valid encrypted JSON keystore file.", STATUS.ERROR);
+    return null;
+  }
+
+  return fileText;
+}
+
+function resetBuyProgress() {
+  buyProgressWrap.style.display = "none";
+  buyProgressBar.value = 0;
+  buyProgressText.textContent = "Decrypting wallet...";
+}
+
 async function refreshBuyerSnapshot(address) {
   const [ethBalance, tokenBalance, tokenSymbol, decimals, venue] = await Promise.all([
     ContractService.getEthBalance(address),
@@ -98,16 +119,24 @@ async function refreshBuyerSnapshot(address) {
 }
 
 async function previewCost() {
+  if (previewCostBtn.disabled) return;
+  previewCostBtn.disabled = true;
+
   if (!validateBuyForm()) {
-    AppUtils.setStatus("buyStatus", "Please fix the validation errors before previewing the cost.", "error");
+    AppUtils.setStatus("buyStatus", "Please fix the validation errors before previewing the cost.", STATUS.ERROR);
+    previewCostBtn.disabled = false;
     return;
   }
 
-  previewCostBtn.disabled = true;
-  AppUtils.setStatus("buyStatus", "Loading ticket price and wallet summary...", "info");
+  AppUtils.setStatus("buyStatus", "Loading ticket price and wallet summary...", STATUS.INFO);
 
   try {
-    const fileText = await readFileAsText(buyerKeystoreFile.files[0]);
+    const fileText = await readKeystoreFileOrShowError();
+    if (!fileText) {
+      resetBuyProgress();
+      return;
+    }
+
     const password = buyerWalletPassword.value;
     const quantity = Number(ticketQuantity.value);
 
@@ -128,11 +157,12 @@ async function previewCost() {
     AppUtils.setStatus(
       "buyStatus",
       `Preview loaded. Estimated gas is about ${AppUtils.formatEth(preview.estimatedGasCost)}.`,
-      "success"
+      STATUS.SUCCESS
     );
   } catch (error) {
     console.error(error);
-    AppUtils.setStatus("buyStatus", `Failed to preview cost: ${error.message || "Unknown error."}`, "error");
+    resetBuyProgress();
+    AppUtils.setStatus("buyStatus", `Failed to preview cost: ${error.message || "Unknown error."}`, STATUS.ERROR);
   } finally {
     previewCostBtn.disabled = false;
     buyProgressText.textContent = "Done";
@@ -141,21 +171,29 @@ async function previewCost() {
 
 async function handleBuySubmit(event) {
   event.preventDefault();
+  if (buyTicketsBtn.disabled) return;
+  buyTicketsBtn.disabled = true;
+  previewCostBtn.disabled = true;
 
   if (!validateBuyForm()) {
-    AppUtils.setStatus("buyStatus", "Please fix the validation errors before buying tickets.", "error");
+    AppUtils.setStatus("buyStatus", "Please fix the validation errors before buying tickets.", STATUS.ERROR);
+    buyTicketsBtn.disabled = false;
+    previewCostBtn.disabled = false;
     return;
   }
 
-  buyTicketsBtn.disabled = true;
-  previewCostBtn.disabled = true;
   buyProgressWrap.style.display = "block";
   buyProgressBar.value = 0;
   buyProgressText.textContent = "Preparing transaction...";
-  AppUtils.setStatus("buyStatus", "Decrypting wallet and sending buy transaction...", "info");
+  AppUtils.setStatus("buyStatus", "Decrypting wallet and sending buy transaction...", STATUS.INFO);
 
   try {
-    const fileText = await readFileAsText(buyerKeystoreFile.files[0]);
+    const fileText = await readKeystoreFileOrShowError();
+    if (!fileText) {
+      resetBuyProgress();
+      return;
+    }
+
     const password = buyerWalletPassword.value;
     const quantity = Number(ticketQuantity.value);
 
@@ -179,11 +217,12 @@ async function handleBuySubmit(event) {
       `<a href="${txUrl}" target="_blank" rel="noopener noreferrer">${result.txHash}</a>`
     );
 
-    AppUtils.setStatus("buyStatus", "Ticket purchase confirmed successfully on Sepolia.", "success");
+    AppUtils.setStatus("buyStatus", "Ticket purchase confirmed successfully on Sepolia.", STATUS.SUCCESS);
     buyerWalletPassword.value = "";
   } catch (error) {
     console.error(error);
-    AppUtils.setStatus("buyStatus", `Ticket purchase failed: ${error.message || "Unknown error."}`, "error");
+    resetBuyProgress();
+    AppUtils.setStatus("buyStatus", `Ticket purchase failed: ${error.message || "Unknown error."}`, STATUS.ERROR);
   } finally {
     buyTicketsBtn.disabled = false;
     previewCostBtn.disabled = false;
