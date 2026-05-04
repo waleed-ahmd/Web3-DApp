@@ -29,7 +29,7 @@
           <div class="row">
             <div class="field">
               <label for="walletRole">Wallet Role</label>
-              <select id="walletRole" name="walletRole" required>
+              <select id="walletRole" name="walletRole" required aria-describedby="walletRoleError">
                 <option value="">Select a role</option>
                 <option value="owner">Owner</option>
                 <option value="vendor">Vendor</option>
@@ -49,8 +49,9 @@
                 maxlength="30"
                 placeholder="e.g. Event Vendor 1"
                 autocomplete="off"
+                aria-describedby="walletLabelHelp walletLabelError"
               />
-              <div class="helper">
+              <div class="helper" id="walletLabelHelp">
                 2–30 characters. Letters, numbers, spaces, dash and underscore only.
               </div>
               <div class="error-text" id="walletLabelError"></div>
@@ -66,12 +67,13 @@
                 type="password"
                 placeholder="Enter a strong password"
                 autocomplete="new-password"
+                aria-describedby="passwordStrength passwordHelp passwordError"
               />
-              <div class="password-strength">
+              <div class="password-strength" id="passwordStrength">
                 <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
                 <div class="strength-text" id="strengthText">Weak</div>
               </div>
-              <div class="helper">
+              <div class="helper" id="passwordHelp">
                 At least 12 characters, including upper, lower, number, and special character.
               </div>
               <div class="error-text" id="passwordError"></div>
@@ -85,13 +87,14 @@
                 type="password"
                 placeholder="Re-enter password"
                 autocomplete="new-password"
+                aria-describedby="confirmPasswordError"
               />
               <div class="error-text" id="confirmPasswordError"></div>
             </div>
           </div>
 
           <div class="checkbox-wrap">
-            <input type="checkbox" id="acknowledgeRisk" />
+            <input type="checkbox" id="acknowledgeRisk" aria-describedby="acknowledgeRiskError" />
             <label for="acknowledgeRisk" class="checkbox-label">
               I understand that if I lose both the encrypted JSON file and its password,
               I may lose access to this wallet.
@@ -106,10 +109,10 @@
 
           <div class="progress-wrap" id="progressWrap">
             <div class="helper" id="progressText">Encrypting wallet...</div>
-            <progress id="encryptProgress" value="0" max="100"></progress>
+            <progress id="encryptProgress" value="0" max="100" aria-describedby="progressText"></progress>
           </div>
 
-          <div class="status info" id="formStatus"></div>
+          <div class="status info" id="formStatus" role="status" aria-live="polite" tabindex="-1"></div>
         </form>
       </section>
 
@@ -128,8 +131,9 @@
               name="keystoreFile"
               type="file"
               accept=".json,application/json"
+              aria-describedby="keystoreFileHelp keystoreFileError"
             />
-            <div class="helper">
+            <div class="helper" id="keystoreFileHelp">
               Upload the keystore JSON file previously downloaded from this page or another Ethereum wallet tool.
             </div>
             <div class="error-text" id="keystoreFileError"></div>
@@ -143,6 +147,7 @@
               type="password"
               placeholder="Enter wallet password"
               autocomplete="current-password"
+              aria-describedby="loadPasswordError"
             />
             <div class="error-text" id="loadPasswordError"></div>
           </div>
@@ -154,10 +159,10 @@
 
           <div class="progress-wrap" id="loadProgressWrap">
             <div class="helper" id="loadProgressText">Decrypting wallet...</div>
-            <progress id="loadProgressBar" value="0" max="100"></progress>
+            <progress id="loadProgressBar" value="0" max="100" aria-describedby="loadProgressText"></progress>
           </div>
 
-          <div class="status info" id="loadStatus"></div>
+          <div class="status info" id="loadStatus" role="status" aria-live="polite" tabindex="-1"></div>
         </form>
       </section>
     </div>
@@ -208,7 +213,7 @@
 
             <div class="meta-item">
               <div class="meta-label">Encrypted JSON Preview</div>
-              <textarea id="outJsonPreview" readonly></textarea>
+              <textarea id="outJsonPreview" readonly aria-label="Encrypted JSON keystore preview"></textarea>
             </div>
 
             <div class="meta-item">
@@ -217,7 +222,7 @@
                 These are hidden on purpose. Reveal them only if you really need them for your assignment or testing.
               </div>
               <div class="sensitive-btn-wrap">
-                <button type="button" class="ghost" id="toggleSensitiveBtn">Reveal Sensitive Details</button>
+                <button type="button" class="ghost" id="toggleSensitiveBtn" aria-expanded="false">Reveal Sensitive Details</button>
               </div>
               <div class="meta-value sensitive" id="outPrivateKey">Private Key: -</div>
               <div class="meta-value sensitive sensitive-spacing" id="outMnemonic">Mnemonic: -</div>
@@ -271,7 +276,7 @@
           </div>
 
           <div class="btn-row top-gap">
-            <button type="button" class="ghost" id="toggleLoadedSensitiveBtn">Reveal Loaded Sensitive Details</button>
+            <button type="button" class="ghost" id="toggleLoadedSensitiveBtn" aria-expanded="false">Reveal Loaded Sensitive Details</button>
             <button type="button" class="secondary" id="copyLoadedAddressBtn">Copy Loaded Address</button>
           </div>
         </div>

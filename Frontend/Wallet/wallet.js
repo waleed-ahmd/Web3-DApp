@@ -54,6 +54,7 @@ let latestWallet = null;
 let latestLoadedWallet = null;
 let sensitiveVisible = false;
 let loadedSensitiveVisible = false;
+let keystoreDownloaded = false;
 
 const createErrorIds = [
   "walletRoleError",
@@ -84,10 +85,39 @@ function setFieldError(id, message) {
   const el = document.getElementById(id);
   el.textContent = message;
   el.style.display = message ? "block" : "none";
+
+  const field = document.querySelector(`[aria-describedby~="${id}"]`);
+  if (field) {
+    field.setAttribute("aria-invalid", message ? "true" : "false");
+  }
 }
 
 function clearErrors(ids) {
   ids.forEach((id) => setFieldError(id, ""));
+}
+
+function focusFirstInvalidField(root = document) {
+  const firstInvalid = root.querySelector('[aria-invalid="true"]');
+  if (firstInvalid) {
+    firstInvalid.focus();
+  }
+}
+
+function focusStatus(element) {
+  element.focus({ preventScroll: false });
+}
+
+function hasEthersLoaded() {
+  return Boolean(window.ethers);
+}
+
+function showEthersLoadError() {
+  const message = "ethers.js failed to load. Check your internet connection or local library import.";
+  setStatus(formStatus, message, "error");
+  setStatus(loadStatus, message, "error");
+  generateBtn.disabled = true;
+  loadWalletBtn.disabled = true;
+  focusStatus(formStatus);
 }
 
 function sanitizeFilePart(value) {
@@ -235,6 +265,7 @@ function validateLoadForm() {
 function resetSensitiveView() {
   sensitiveVisible = false;
   toggleSensitiveBtn.textContent = "Reveal Sensitive Details";
+  toggleSensitiveBtn.setAttribute("aria-expanded", "false");
   outPrivateKey.classList.remove("revealed");
   outMnemonic.classList.remove("revealed");
 }
@@ -242,6 +273,7 @@ function resetSensitiveView() {
 function resetLoadedSensitiveView() {
   loadedSensitiveVisible = false;
   toggleLoadedSensitiveBtn.textContent = "Reveal Loaded Sensitive Details";
+  toggleLoadedSensitiveBtn.setAttribute("aria-expanded", "false");
   loadedPrivateKey.classList.remove("revealed");
   loadedMnemonic.classList.remove("revealed");
 }
@@ -289,6 +321,7 @@ async function downloadEncryptedJson() {
   document.body.appendChild(a);
   a.click();
   a.remove();
+  keystoreDownloaded = true;
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -302,11 +335,12 @@ form.addEventListener("submit", async (event) => {
 
   if (!validateCreateForm()) {
     setStatus(formStatus, "Please fix the validation errors before generating the wallet.", "error");
+    focusFirstInvalidField(form);
     return;
   }
 
-  if (!window.ethers) {
-    setStatus(formStatus, "ethers.js failed to load. Check your internet connection or local library import.", "error");
+  if (!hasEthersLoaded()) {
+    showEthersLoadError();
     return;
   }
 
@@ -344,6 +378,7 @@ form.addEventListener("submit", async (event) => {
 
     latestEncryptedJson = encryptedJson;
     latestFileName = fileName;
+    keystoreDownloaded = false;
 
     showCreatedWalletOutput({
       role: roleValue,
@@ -352,10 +387,7 @@ form.addEventListener("submit", async (event) => {
       publicKey: wallet.publicKey,
       createdAt: timestamp.toLocaleString(),
       fileName,
-      jsonPreview:
-        encryptedJson.length > 500
-          ? encryptedJson.slice(0, 500) + "...\n\n[truncated preview]"
-          : encryptedJson,
+      jsonPreview: encryptedJson,
       privateKey: wallet.privateKey,
       mnemonic: wallet.mnemonic?.phrase || "Not available"
     });
@@ -387,11 +419,12 @@ loadWalletForm.addEventListener("submit", async (event) => {
 
   if (!validateLoadForm()) {
     setStatus(loadStatus, "Please fix the validation errors before loading the wallet.", "error");
+    focusFirstInvalidField(loadWalletForm);
     return;
   }
 
-  if (!window.ethers) {
-    setStatus(loadStatus, "ethers.js failed to load. Check your internet connection or local library import.", "error");
+  if (!hasEthersLoaded()) {
+    showEthersLoadError();
     return;
   }
 
@@ -482,6 +515,7 @@ toggleSensitiveBtn.addEventListener("click", () => {
   toggleSensitiveBtn.textContent = sensitiveVisible
     ? "Hide Sensitive Details"
     : "Reveal Sensitive Details";
+  toggleSensitiveBtn.setAttribute("aria-expanded", sensitiveVisible ? "true" : "false");
 });
 
 toggleLoadedSensitiveBtn.addEventListener("click", () => {
@@ -491,6 +525,7 @@ toggleLoadedSensitiveBtn.addEventListener("click", () => {
   toggleLoadedSensitiveBtn.textContent = loadedSensitiveVisible
     ? "Hide Loaded Sensitive Details"
     : "Reveal Loaded Sensitive Details";
+  toggleLoadedSensitiveBtn.setAttribute("aria-expanded", loadedSensitiveVisible ? "true" : "false");
 });
 
 resetBtn.addEventListener("click", () => {
@@ -502,6 +537,7 @@ resetBtn.addEventListener("click", () => {
   latestEncryptedJson = "";
   latestFileName = "";
   latestWallet = null;
+  keystoreDownloaded = false;
   downloadBtn.disabled = true;
   outputPlaceholder.classList.remove("hidden");
   walletOutput.classList.add("hidden");
@@ -521,3 +557,16 @@ resetLoadBtn.addEventListener("click", () => {
 
 password.addEventListener("input", updatePasswordStrength);
 updatePasswordStrength();
+
+window.addEventListener("beforeunload", (event) => {
+  if (!latestEncryptedJson || keystoreDownloaded) {
+    return;
+  }
+
+  event.preventDefault();
+  event.returnValue = "";
+});
+
+if (!hasEthersLoaded()) {
+  showEthersLoadError();
+}

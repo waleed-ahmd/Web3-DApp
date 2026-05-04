@@ -111,8 +111,15 @@ button {
 
 textarea {
   min-height: 120px;
+  max-height: 320px;
   resize: vertical;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+#outJsonPreview {
+  min-height: 240px;
+  overflow: auto;
+  white-space: pre;
 }
 
 input:focus,
