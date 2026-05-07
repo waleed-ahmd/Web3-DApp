@@ -7,7 +7,26 @@
   <link rel="stylesheet" href="wallet.css" />
 </head>
 <body>
-  <div class="container">
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="../index.html" aria-label="Blockchain Ticketing DApp home">
+        <span class="brand-mark">BT</span>
+        <span>
+          <strong>Blockchain Ticketing</strong>
+          <small>Sepolia DApp</small>
+        </span>
+      </a>
+
+      <div class="nav-links">
+        <a class="active" href="wallet.html">Wallet</a>
+        <a href="../CheckBalance/balance.html">Balances</a>
+        <a href="../BuyTicket/buy.html">Buy</a>
+        <a href="../ReturnTicket/return.html">Return</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
     <section class="hero">
       <div class="pill">Wallet Management</div>
       <h1>Create or load an Ethereum wallet</h1>
@@ -282,7 +301,18 @@
         </div>
       </section>
     </div>
-  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>Blockchain Ticketing DApp</p>
+      <div class="footer-links">
+        <a href="../CheckBalance/balance.html">Check Balances</a>
+        <a href="../BuyTicket/buy.html">Buy Ticket</a>
+        <a href="https://sepolia.etherscan.io/address/0x6327F2211AcEE5f77B5E6Fde511F6750B45bE7BF" target="_blank" rel="noreferrer">View Contract</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.umd.min.js"></script>
   <script src="wallet.js"></script>

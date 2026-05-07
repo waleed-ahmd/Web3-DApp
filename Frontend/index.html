@@ -7,14 +7,54 @@
   <link rel="stylesheet" href="shared/ticket-page.css" />
 </head>
 <body>
-  <div class="container">
-    <section class="hero">
-      <div class="pill">Blockchain Ticketing DApp</div>
-      <h1>Event ticketing on Sepolia</h1>
-      <p>
-        Create encrypted wallets, check ticket balances, buy ERC-20 ticket tokens,
-        and return tickets to the vendor for a refund.
-      </p>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="index.html" aria-label="Blockchain Ticketing DApp home">
+        <span class="brand-mark">BT</span>
+        <span>
+          <strong>Blockchain Ticketing</strong>
+          <small>Sepolia DApp</small>
+        </span>
+      </a>
+
+      <div class="nav-links">
+        <a href="Wallet/wallet.html">Wallet</a>
+        <a href="CheckBalance/balance.html">Balances</a>
+        <a href="BuyTicket/buy.html">Buy</a>
+        <a href="ReturnTicket/return.html">Return</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero landing-hero">
+      <div class="hero-copy">
+        <div class="pill">Blockchain Ticketing DApp</div>
+        <h1>Event ticketing on Sepolia</h1>
+        <p>
+          Create encrypted wallets, check ticket balances, buy ERC-20 ticket tokens,
+          and return tickets to the vendor for a refund.
+        </p>
+        <div class="hero-actions" aria-label="Primary actions">
+          <a class="button primary hero-button" href="BuyTicket/buy.html">Buy Ticket</a>
+          <a class="button secondary hero-button" href="CheckBalance/balance.html">Check Balance</a>
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="DApp overview">
+        <div class="overview-item">
+          <span>Network</span>
+          <strong>Sepolia</strong>
+        </div>
+        <div class="overview-item">
+          <span>Token</span>
+          <strong>ERC-20 Tickets</strong>
+        </div>
+        <div class="overview-item">
+          <span>Wallets</span>
+          <strong>Encrypted JSON</strong>
+        </div>
+      </aside>
     </section>
 
     <div class="network-banner">
@@ -23,8 +63,14 @@
       <strong>Network:</strong> Sepolia
     </div>
 
-    <div class="grid">
+    <section class="section-heading">
+      <p class="eyebrow">DApp Workflows</p>
+      <h2>Choose what you want to do</h2>
+    </section>
+
+    <div class="grid workflow-grid">
       <section class="card">
+        <p class="card-kicker">01</p>
         <h2>Wallet Manager</h2>
         <p class="sub">Create an encrypted JSON wallet, download it, or load an existing wallet.</p>
         <div class="btn-row">
@@ -33,6 +79,7 @@
       </section>
 
       <section class="card">
+        <p class="card-kicker">02</p>
         <h2>Balance Check</h2>
         <p class="sub">Use attendee, doorman, and venue views to inspect ETH and ticket balances.</p>
         <div class="btn-row">
@@ -41,6 +88,7 @@
       </section>
 
       <section class="card">
+        <p class="card-kicker">03</p>
         <h2>Buy Ticket</h2>
         <p class="sub">Upload a buyer keystore, preview cost and gas, then purchase ticket tokens.</p>
         <div class="btn-row">
@@ -49,6 +97,7 @@
       </section>
 
       <section class="card">
+        <p class="card-kicker">04</p>
         <h2>Return Ticket</h2>
         <p class="sub">Return ticket tokens to the vendor and receive the contract refund.</p>
         <div class="btn-row">
@@ -56,7 +105,18 @@
         </div>
       </section>
     </div>
-  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>Blockchain Ticketing DApp</p>
+      <div class="footer-links">
+        <a href="BuyTicket/buy.html">Buy Ticket</a>
+        <a href="ReturnTicket/return.html">Return Ticket</a>
+        <a href="https://sepolia.etherscan.io/address/0x6327F2211AcEE5f77B5E6Fde511F6750B45bE7BF" target="_blank" rel="noreferrer">View Contract</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="shared/app-config.js"></script>
   <script>
