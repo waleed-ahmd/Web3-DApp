@@ -14,9 +14,44 @@ This project implements a simple blockchain ticketing system for the Ethereum Se
 - `Project-Design.md` - report-style project overview and rubric mapping.
 - `AI-Log.md` - statement on use of generative AI and review trace.
 
-## Running The Frontend
+## Running The Frontend With npm
 
-The project is designed to run with the VS Code Live Server extension.
+The project frontend is a static HTML, CSS, and JavaScript app. It does not need a
+build step, but it can be served locally with npm.
+
+1. Open a terminal in the project root.
+2. Install dependencies if needed:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the local frontend server:
+
+   ```bash
+   npm start
+   ```
+
+   You can also use:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open the app in your browser:
+
+   ```text
+   http://127.0.0.1:3000
+   ```
+
+5. Navigate to the wallet, balance, buy, and return pages from the landing page.
+
+The npm server serves the `Frontend` folder directly, so `Frontend/index.html`
+is the homepage.
+
+## Running The Frontend With VS Code Live Server
+
+The project can also run with the VS Code Live Server extension.
 
 1. Open this folder in Visual Studio Code.
 2. Install the Live Server extension if it is not already installed.
@@ -25,6 +60,26 @@ The project is designed to run with the VS Code Live Server extension.
 5. Navigate to the wallet, balance, buy, and return pages from the landing page.
 
 The frontend loads `ethers.js` from a CDN and connects to Sepolia using the RPC URL configured in `Frontend/shared/app-config.js`.
+
+## Useful npm Commands
+
+```bash
+npm start
+```
+
+Serves the frontend locally at `http://127.0.0.1:3000`.
+
+```bash
+npm run dev
+```
+
+Runs the same local frontend server as `npm start`.
+
+```bash
+npm run check:js
+```
+
+Checks all frontend JavaScript files for syntax errors.
 
 ## Smart Contract
 

@@ -4,6 +4,8 @@
   "private": true,
   "description": "Sepolia ERC-20 ticketing DApp built with Solidity, HTML, CSS, and JavaScript.",
   "scripts": {
+    "start": "node scripts/serve-frontend.js",
+    "dev": "node scripts/serve-frontend.js",
     "check:js": "find Frontend -name '*.js' -print0 | xargs -0 -n 1 node --check"
   },
   "dependencies": {
