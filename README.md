@@ -102,12 +102,12 @@ The contract extends OpenZeppelin ERC-20, sets `decimals()` to `0` so tickets ar
 
 Before final submission, add the exact Sepolia explorer links below:
 
-- Successful contract deployment: `TODO`
-- Successful ticket purchase transaction: `TODO`
-- Successful ticket return transaction: `TODO`
-- Contract creator wallet top-up: `TODO`
-- Ticket purchaser wallet top-up: `TODO`
-- Vendor / doorman wallet top-up: `TODO`
+- Successful contract deployment: `https://sepolia.etherscan.io/tx/0x0f2a0349361cf9d618c982fe89dfa725a6d1a8be0133aba3a0af8d0a6e5a6ba0`
+- Successful ticket purchase transaction: `https://sepolia.etherscan.io/tx/0xa25baf62ffb985a8e53a61b7422d8dc03c6ce36e0884588bed3e31b5c1cfeb3c`
+- Successful ticket return transaction: `https://sepolia.etherscan.io/tx/0x838c2f3f5bb6ec91184c7f36e8fdbfed6847f4e11b5547a497d40df5859d52c6`
+- Contract creator wallet top-up: `https://sepolia.etherscan.io/tx/0x8541607d70b5fd384a61d2830a2cbfa915d051e4f4b952617b72ec7e061e9894`
+- Ticket purchaser wallet top-up: `https://sepolia.etherscan.io/tx/0x71d00e95092a337adaa7908e920b2da2837e70aa790ece3d5db4b7b8b6da0765`
+- Vendor / doorman wallet top-up: vendor ticket inventory was minted during deployment (`https://sepolia.etherscan.io/tx/0x0f2a0349361cf9d618c982fe89dfa725a6d1a8be0133aba3a0af8d0a6e5a6ba0`); doorman verification is read-only and does not require Sepolia ETH or gas.
 
 ## Basic Verification Checklist
 

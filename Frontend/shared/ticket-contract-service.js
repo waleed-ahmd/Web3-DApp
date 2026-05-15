@@ -21,11 +21,42 @@ window.ContractService = (() => {
   }
 
   function getRevertData(error) {
-    return error?.data
-      || error?.error?.data
-      || error?.info?.error?.data
-      || error?.receipt?.revertReason
-      || null;
+    const seen = new Set();
+
+    function findData(value) {
+      if (!value || seen.has(value)) return null;
+
+      if (typeof value === "string") {
+        if (/^0x[0-9a-fA-F]{8,}$/.test(value)) return value;
+
+        try {
+          return findData(JSON.parse(value));
+        } catch {
+          const match = value.match(/0x[0-9a-fA-F]{8,}/);
+          return match?.[0] || null;
+        }
+      }
+
+      if (typeof value !== "object") return null;
+      seen.add(value);
+
+      const direct = [
+        value.data,
+        value.revert,
+        value.revertReason,
+        value.body
+      ].map(findData).find(Boolean);
+
+      if (direct) return direct;
+
+      return [
+        value.error,
+        value.info,
+        value.receipt
+      ].map(findData).find(Boolean) || null;
+    }
+
+    return findData(error);
   }
 
   function getDecodedContractError(error) {
@@ -69,6 +100,35 @@ window.ContractService = (() => {
       return "The contract could not send the ETH refund back to this wallet.";
     }
 
+    if (decodedError?.name === "ReturnsToVendorMustUseRefundFunction") {
+      return "Tickets can only be returned through the return form.";
+    }
+
+    if (decodedError?.name === "VendorTransfersOnlyThroughPurchase") {
+      return "Vendor tickets can only be transferred through the buy form.";
+    }
+
+    if (decodedError?.name === "DirectEtherNotAllowed") {
+      return "The contract does not accept direct ETH transfers.";
+    }
+
+    if (decodedError?.name === "ERC20InsufficientBalance") {
+      const [, balance, needed] = decodedError.args;
+      return `This wallet only has ${formatTickets(balance)} ticket(s), but ${formatTickets(needed)} are needed.`;
+    }
+
+    if (decodedError?.name === "ERC20InvalidSender") {
+      return "The ticket transfer cannot be sent from this wallet address.";
+    }
+
+    if (decodedError?.name === "ERC20InvalidReceiver") {
+      return "The ticket transfer cannot be sent to the receiving wallet address.";
+    }
+
+    if (decodedError?.name === "ReentrancyGuardReentrantCall") {
+      return "The contract rejected this duplicate return request. Please wait and try again.";
+    }
+
     if (decodedError?.name) {
       return `The contract rejected this transaction: ${decodedError.name}.`;
     }
@@ -94,6 +154,10 @@ window.ContractService = (() => {
 
     if (/network|could not coalesce|failed to fetch|server response/i.test(rawMessage)) {
       return "Could not reach the Sepolia RPC provider. Check your connection and RPC URL.";
+    }
+
+    if (/unknown custom error|execution reverted/i.test(rawMessage)) {
+      return "The contract rejected this action. Please check that this wallet has enough tickets to return and that the app is using the deployed contract address.";
     }
 
     return rawMessage;
