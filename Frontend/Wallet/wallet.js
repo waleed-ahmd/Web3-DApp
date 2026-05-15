@@ -120,6 +120,29 @@ function showEthersLoadError() {
   focusStatus(formStatus);
 }
 
+function getWalletLoadErrorMessage(error) {
+  const rawMessage = [
+    error?.shortMessage,
+    error?.reason,
+    error?.message,
+    error?.info?.error?.message
+  ].find(Boolean) || "";
+
+  if (/incorrect password|invalid password|bad decrypt|wrong password/i.test(rawMessage)) {
+    return "The password does not match this keystore file. Please check the password and try again.";
+  }
+
+  if (/not valid JSON|unexpected token/i.test(rawMessage)) {
+    return "The selected file is not valid JSON. Please choose the encrypted wallet JSON file you downloaded.";
+  }
+
+  if (/not a valid Ethereum keystore|invalid keystore|invalid json wallet/i.test(rawMessage)) {
+    return "This JSON file is not a valid Ethereum keystore. Please choose an encrypted wallet keystore file.";
+  }
+
+  return "The wallet could not be loaded. Please check that the file and password are correct, then try again.";
+}
+
 function sanitizeFilePart(value) {
   return (
     value
@@ -475,9 +498,10 @@ loadWalletForm.addEventListener("submit", async (event) => {
     console.error(error);
     setStatus(
       loadStatus,
-      "Wallet load failed: " + (error?.message || "Unknown error."),
+      getWalletLoadErrorMessage(error),
       "error"
     );
+    focusStatus(loadStatus);
   } finally {
     loadWalletBtn.disabled = false;
     loadProgressText.textContent = "Done";
